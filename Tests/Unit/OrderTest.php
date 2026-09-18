@@ -8,20 +8,31 @@ use App\Model\Order;
 use App\Enum\OrderStatus;
 use PHPUnit\Framework\TestCase;
 use App\Exception\InvalidOrderStateException;
+use App\Collection\OrderItemCollection;
 
 final class OrderTest extends TestCase
 {
     public function test_pending_order_can_move_to_processing(): void
     {
+        // Arrange
         $order = new Order(
             id: 1,
-            customer: new \App\Model\User(1, 'John Doe', 'john.doe@example.com'),
-            items: [new \App\Model\OrderItem(
+            customer: new \App\Model\User(
+                1,
+                'John Doe',
+                'john.doe@example.com'
+            ),
+            items: new OrderItemCollection(
+                new \App\Model\OrderItem(
                     productId: 101,
                     productName: 'Sample Product',
-                    unitPrice: new \App\Model\Money(1000, 'USD'),
+                    unitPrice: new \App\Model\Money(
+                        amountInMinorUnits: 1000,
+                        currency: 'USD'
+                    ),
                     quantity: 1
-                )]
+                )
+            )
         );
         $order->changeStatus(OrderStatus::PROCESSING);
         $this->assertSame(OrderStatus::PROCESSING, $order->status());
@@ -32,15 +43,23 @@ final class OrderTest extends TestCase
         // Arrange
         $order = new Order(
             id: 1,
-            customer: new \App\Model\User(1, 'John Doe', 'john.doe@example.com'),
-            items: [new \App\Model\OrderItem(
+            customer: new \App\Model\User(
+                1,
+                'John Doe',
+                'john.doe@example.com'
+            ),
+            items: new OrderItemCollection(
+                new \App\Model\OrderItem(
                     productId: 101,
                     productName: 'Sample Product',
-                    unitPrice: new \App\Model\Money(1000, 'USD'),
+                    unitPrice: new \App\Model\Money(
+                        amountInMinorUnits: 1000,
+                        currency: 'USD'
+                    ),
                     quantity: 1
-                )]
-            );
-
+                )
+            )
+        );
 
         // Act
         $order->changeStatus(OrderStatus::CANCELLED);
@@ -62,14 +81,17 @@ final class OrderTest extends TestCase
                 'John Doe',
                 'john.doe@example.com'
             ),
-            items: [
+            items: new OrderItemCollection(
                 new \App\Model\OrderItem(
                     productId: 101,
                     productName: 'Sample Product',
-                    unitPrice: new \App\Model\Money(1000, 'USD'),
+                    unitPrice: new \App\Model\Money(
+                        amountInMinorUnits: 1000,
+                        currency: 'USD'
+                    ),
                     quantity: 1
                 )
-            ]
+            )
         );
 
         // Order ko pehle PROCESSING mein le jana zaroori hai
@@ -95,14 +117,17 @@ final class OrderTest extends TestCase
                 'John Doe',
                 'john.doe@example.com'
             ),
-            items: [
+            items: new OrderItemCollection(
                 new \App\Model\OrderItem(
                     productId: 101,
                     productName: 'Sample Product',
-                    unitPrice: new \App\Model\Money(1000, 'USD'),
+                    unitPrice: new \App\Model\Money(
+                        amountInMinorUnits: 1000,
+                        currency: 'USD'
+                    ),
                     quantity: 1
                 )
-            ]
+            )
         );
 
         // Assert: PHPUnit ko batate hain ki exception expected hai
