@@ -12,15 +12,16 @@ use App\Model\Order;
 use App\Model\OrderItem;
 use App\Model\Money;
 use App\Service\OrderService;
-use App\Exception\OrderNotFoundException;
 use App\Exception\InvalidOrderStateException;
 use App\Repository\InMemoryOrderRepository;
 use App\Enum\OrderStatus;
+use App\Collection\OrderItemCollection;
+use App\Support\AuditEventReader;
 
 $customer = new User(1, 'Hardev Sharma', 'hdsharma@example.com', '123-456-7890');
 $keyboard = new OrderItem (
     productId: 101,
-    productName: 'Woreless Keyboard',
+    productName: 'Wireless Keyboard',
     unitPrice: new Money(
         amountInMinorUnits: 150000,
         currency: 'INR'
@@ -38,10 +39,11 @@ $mouse = new OrderItem (
     quantity: 1
 );
 
+$items = new OrderItemCollection($keyboard, $mouse);
 $order = new Order(
     id: 1,
     customer: $customer,
-    items: [$keyboard, $mouse]
+    items: $items
 );
 
 echo "Order ID: {$order->id}\n";
@@ -82,3 +84,15 @@ try {
 }
 
 echo "Final status: {$order->status()->value}" . PHP_EOL;
+
+
+$auditEventReader = new AuditEventReader();
+$auditEvent = $auditEventReader->read(
+    class: Order::class,
+    method: 'changeStatus'
+);
+if($auditEvent !== null) {
+    echo "Audit Event Name: {$auditEvent->eventName}" . PHP_EOL;
+} else {
+    echo "No Audit Event found for method changeOrderStatus" . PHP_EOL;
+}

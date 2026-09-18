@@ -2,9 +2,11 @@
 declare(strict_types=1);
 
 namespace App\Model;
+
+use App\Contract\ArrayConvertible;
 use InvalidArgumentException;
 
-final readonly class User
+final readonly class User implements ArrayConvertible
 {
     public function __construct(
         public int $id,
@@ -33,5 +35,15 @@ final readonly class User
     public function hasPhone(): bool
     {
         return $this->phone !== null;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone
+        ];
     }
 }
